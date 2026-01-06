@@ -157,17 +157,16 @@
             display: block;
         }
         
-        .weather-info {
-            color: #666;
-            line-height: 1.8;
+        #weatherLocation {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
         }
         
-        /* ==================== 天氣卡片樣式 ==================== */
-        .weather-cards {
+        #weatherCardsContainer {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 15px;
-            margin-bottom: 20px;
         }
         
         .weather-card {
@@ -227,6 +226,7 @@
             margin-top: 15px;
             padding-top: 15px;
             border-top: 1px solid #e5e7eb;
+            grid-column: 1/-1;
         }
     </style>
 </head>
@@ -258,11 +258,8 @@
         <!-- 天氣顯示區域 -->
         <div class="weather-display" id="weatherDisplay">
             <h2 id="weatherLocation"></h2>
-            <div class="weather-info" id="weatherInfo"></div>
+            <div id="weatherCardsContainer"></div>
         </div>
-        
-        <!-- 天氣卡片顯示區域 -->
-        <div class="weather-cards" id="weatherCardsContainer"></div>
     </div>
 
     <!-- 後端整合腳本 -->

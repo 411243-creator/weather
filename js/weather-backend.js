@@ -56,17 +56,26 @@ async function saveUserCity(userId, cityName) {
 // ==================== 3. 中央氣象署天氣查詢 ====================
 async function fetchWeatherFromCWB(locationName) {
     try {
+        console.log(`🔍 開始查詢: ${locationName}`);
         const url = `${CWB_API_URL}?locationName=${encodeURIComponent(locationName)}&Authorization=${CWB_API_KEY}`;
+        console.log(`📡 API 網址: ${url}`);
+        
         const response = await fetch(url);
         const data = await response.json();
         
+        console.log(`📦 API 回應:`, data);
+        
         if (data.success && data.records && data.records.locations.length > 0) {
             const location = data.records.locations[0];
-            return parseWeatherData(location);
+            const weatherData = parseWeatherData(location);
+            console.log(`✅ 解析成功:`, weatherData);
+            return weatherData;
         }
+        
+        console.warn(`⚠️ 找不到位置: ${locationName}`);
         return null;
     } catch (error) {
-        console.error("無法從中央氣象署取得天氣資料:", error);
+        console.error(`❌ API 查詢失敗:`, error);
         return null;
     }
 }
@@ -84,6 +93,8 @@ function parseWeatherData(location) {
             weatherElements[name] = value;
         });
     }
+    
+    console.log(`📊 解析的天氣元素:`, weatherElements);
     
     return {
         locationName: location.locationName,

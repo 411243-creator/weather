@@ -93,14 +93,27 @@ function initSearchButton() {
         searchBtn.disabled = true;
         searchBtn.textContent = "查詢中...";
         
-        // 呼叫後端 API 查詢天氣
-        await onUserSearchCity(selectedCity);
-        
-        // 顯示天氣資訊
-        displayWeatherUI(selectedCity);
-        
-        searchBtn.disabled = false;
-        searchBtn.textContent = "查詢天氣";
+        try {
+            // 呼叫後端 API 查詢天氣
+            const weatherData = await fetchWeatherFromCWB(selectedCity);
+            
+            if (weatherData) {
+                // 顯示天氣資訊和卡片
+                displayWeatherUI(selectedCity, weatherData);
+                
+                // 儲存查詢紀錄
+                const userId = getUserId();
+                saveUserCity(userId, selectedCity);
+            } else {
+                alert(`找不到【${selectedCity}】的天氣資訊`);
+            }
+        } catch (error) {
+            console.error("查詢天氣時出錯:", error);
+            alert("查詢失敗，請稍後再試");
+        } finally {
+            searchBtn.disabled = false;
+            searchBtn.textContent = "查詢天氣";
+        }
     });
 }
 
@@ -114,11 +127,14 @@ function updateSearchButtonState() {
 function displayWeatherUI(locationName, weatherData) {
     const weatherDisplay = document.getElementById("weatherDisplay");
     const weatherLocation = document.getElementById("weatherLocation");
-    const weatherInfo = document.getElementById("weatherInfo");
     const weatherCardsContainer = document.getElementById("weatherCardsContainer");
     
+    console.log(`🎨 準備顯示天氣UI:`, { locationName, weatherData });
+    
     if (!weatherData) {
-        weatherInfo.innerHTML = `<p>無法取得 ${locationName} 的天氣資訊</p>`;
+        console.warn(`⚠️ 無天氣資料`);
+        weatherLocation.textContent = `${locationName} - 無資料`;
+        weatherCardsContainer.innerHTML = `<p style="grid-column: 1/-1; color: #d32f2f;">無法取得天氣資訊</p>`;
         weatherDisplay.classList.add("show");
         return;
     }
@@ -133,9 +149,9 @@ function displayWeatherUI(locationName, weatherData) {
         </div>
         
         <div class="weather-card orange-top">
-            <div class="card-label">預測溫暖</div>
+            <div class="card-label">體感溫度</div>
             <div class="card-value">${weatherData.feelsLikeTemp}°C</div>
-            <div class="card-desc">體感溫度</div>
+            <div class="card-desc">感受溫度</div>
         </div>
         
         <div class="weather-card gray-top">
@@ -161,9 +177,13 @@ function displayWeatherUI(locationName, weatherData) {
             <div class="card-value">${weatherData.pressure} hPa</div>
             <div class="card-desc">海平面氣壓</div>
         </div>
+        
+        <div class="weather-update-time" style="grid-column: 1/-1;">更新時間: ${updateTime}</div>
     `;
     
     weatherLocation.textContent = `${locationName} 的天氣`;
-    weatherCardsContainer.innerHTML = cardsHTML + `<div class="weather-update-time" style="grid-column: 1/-1;">更新時間: ${updateTime}</div>`;
+    weatherCardsContainer.innerHTML = cardsHTML;
     weatherDisplay.classList.add("show");
+    
+    console.log(`✅ UI 顯示完成`);
 }
