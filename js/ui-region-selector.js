@@ -110,28 +110,12 @@ function updateSearchButtonState() {
     searchBtn.disabled = !selectedCity;
 }
 
-// ==================== UI 顯示天氣資訊 ====================
-function displayWeatherUI(locationName) {
-    const weatherDisplay = document.getElementById("weatherDisplay");
-    const weatherLocation = document.getElementById("weatherLocation");
-    const weatherInfo = document.getElementById("weatherInfo");
-    
-    // 假設 displayWeather 已在 weather-backend.js 呼叫天氣 API
-    // 這裡負責前端 UI 更新
-    weatherLocation.textContent = `${locationName} 的天氣`;
-    weatherInfo.innerHTML = `
-        <p>✓ 已成功查詢 ${locationName} 的天氣資訊</p>
-        <p>請查看瀏覽器主控台查看詳細資料</p>
-    `;
-    
-    weatherDisplay.classList.add("show");
-}
-
 // ==================== UI 顯示天氣資訊（卡片格式） ====================
 function displayWeatherUI(locationName, weatherData) {
     const weatherDisplay = document.getElementById("weatherDisplay");
     const weatherLocation = document.getElementById("weatherLocation");
     const weatherInfo = document.getElementById("weatherInfo");
+    const weatherCardsContainer = document.getElementById("weatherCardsContainer");
     
     if (!weatherData) {
         weatherInfo.innerHTML = `<p>無法取得 ${locationName} 的天氣資訊</p>`;
@@ -141,60 +125,45 @@ function displayWeatherUI(locationName, weatherData) {
     
     const updateTime = new Date(weatherData.updateTime).toLocaleString('zh-TW');
     
-    const weatherHTML = `
-        <div class="weather-cards">
-            <div class="weather-card orange-top">
-                <div class="card-label">現在溫度</div>
-                <div class="card-value">${weatherData.currentTemp}°C</div>
-                <div class="card-desc">戶外量測</div>
-            </div>
-            
-            <div class="weather-card orange-top">
-                <div class="card-label">預測溫暖</div>
-                <div class="card-value">${weatherData.feelsLikeTemp}°C</div>
-                <div class="card-desc">今日最低溫</div>
-            </div>
-            
-            <div class="weather-card gray-top">
-                <div class="card-label">體感溫度</div>
-                <div class="card-value">${weatherData.feelsLikeTemp}°C</div>
-                <div class="card-desc">感受溫度</div>
-            </div>
-            
-            <div class="weather-card blue-top">
-                <div class="card-label">累積雨量</div>
-                <div class="card-value">${weatherData.rainfall} mm</div>
-                <div class="card-desc">今日降雨</div>
-            </div>
-            
-            <div class="weather-card yellow-top">
-                <div class="card-label">日出時間</div>
-                <div class="card-value">${weatherData.sunrise}</div>
-                <div class="card-desc">預計時間</div>
-            </div>
-            
-            <div class="weather-card yellow-top">
-                <div class="card-label">日落時間</div>
-                <div class="card-value">${weatherData.sunset}</div>
-                <div class="card-desc">預計時間</div>
-            </div>
-            
-            <div class="weather-card gray-top">
-                <div class="card-label">相對濕度</div>
-                <div class="card-value">${weatherData.humidity}%</div>
-                <div class="card-desc">空氣濕度</div>
-            </div>
-            
-            <div class="weather-card gray-top">
-                <div class="card-label">風速風向</div>
-                <div class="card-value">${weatherData.windSpeed} m/s</div>
-                <div class="card-desc">${weatherData.windDirection}</div>
-            </div>
+    const cardsHTML = `
+        <div class="weather-card orange-top">
+            <div class="card-label">現在溫度</div>
+            <div class="card-value">${weatherData.currentTemp}°C</div>
+            <div class="card-desc">戶外量測</div>
         </div>
-        <div class="weather-update-time">更新時間: ${updateTime}</div>
+        
+        <div class="weather-card orange-top">
+            <div class="card-label">預測溫暖</div>
+            <div class="card-value">${weatherData.feelsLikeTemp}°C</div>
+            <div class="card-desc">體感溫度</div>
+        </div>
+        
+        <div class="weather-card gray-top">
+            <div class="card-label">相對濕度</div>
+            <div class="card-value">${weatherData.humidity}%</div>
+            <div class="card-desc">空氣濕度</div>
+        </div>
+        
+        <div class="weather-card blue-top">
+            <div class="card-label">累積雨量</div>
+            <div class="card-value">${weatherData.rainfall} mm</div>
+            <div class="card-desc">今日降雨</div>
+        </div>
+        
+        <div class="weather-card yellow-top">
+            <div class="card-label">風速</div>
+            <div class="card-value">${weatherData.windSpeed} m/s</div>
+            <div class="card-desc">${weatherData.windDirection}</div>
+        </div>
+        
+        <div class="weather-card gray-top">
+            <div class="card-label">氣壓</div>
+            <div class="card-value">${weatherData.pressure} hPa</div>
+            <div class="card-desc">海平面氣壓</div>
+        </div>
     `;
     
-    weatherLocation.textContent = locationName;
-    weatherInfo.innerHTML = weatherHTML;
+    weatherLocation.textContent = `${locationName} 的天氣`;
+    weatherCardsContainer.innerHTML = cardsHTML + `<div class="weather-update-time" style="grid-column: 1/-1;">更新時間: ${updateTime}</div>`;
     weatherDisplay.classList.add("show");
 }
