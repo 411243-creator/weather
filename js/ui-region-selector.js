@@ -94,6 +94,8 @@ function initSearchButton() {
         searchBtn.textContent = "查詢中...";
         
         try {
+            console.log(`🔄 開始查詢: ${selectedCity}`);
+            
             // 呼叫後端 API 查詢天氣
             const weatherData = await fetchWeatherFromCWB(selectedCity);
             
@@ -104,12 +106,16 @@ function initSearchButton() {
                 // 儲存查詢紀錄
                 const userId = getUserId();
                 saveUserCity(userId, selectedCity);
+                
+                console.log(`✅ 查詢成功`);
             } else {
-                alert(`找不到【${selectedCity}】的天氣資訊`);
+                console.error(`❌ 查詢失敗: 未取得天氣資料`);
+                alert(`找不到【${selectedCity}】的天氣資訊\n\n請檢查瀏覽器主控台查看詳細錯誤信息`);
+                displayWeatherUI(selectedCity, null);
             }
         } catch (error) {
             console.error("查詢天氣時出錯:", error);
-            alert("查詢失敗，請稍後再試");
+            alert("查詢失敗，請稍後再試\n\n錯誤詳情已記錄到主控台");
         } finally {
             searchBtn.disabled = false;
             searchBtn.textContent = "查詢天氣";

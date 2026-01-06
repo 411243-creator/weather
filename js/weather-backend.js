@@ -4,6 +4,32 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxaYadZ1TmgcTvF2KeK
 const CWB_API_URL = "https://opendata.cwa.gov.tw/api/v1/rest/queryField/Weather";
 const CWB_API_KEY = "CWA-1A978612-32DB-496D-B286-CA939138D942";
 
+// 縣市名稱映射（中央氣象署使用的正確名稱）
+const cityNameMap = {
+    "基隆市": "基隆市",
+    "台北市": "臺北市",
+    "新北市": "新北市",
+    "桃園市": "桃園市",
+    "新竹市": "新竹市",
+    "新竹縣": "新竹縣",
+    "苗栗縣": "苗栗縣",
+    "台中市": "臺中市",
+    "南投縣": "南投縣",
+    "彰化縣": "彰化縣",
+    "雲林縣": "雲林縣",
+    "嘉義市": "嘉義市",
+    "嘉義縣": "嘉義縣",
+    "台南市": "臺南市",
+    "高雄市": "高雄市",
+    "屏東縣": "屏東縣",
+    "宜蘭縣": "宜蘭縣",
+    "花蓮縣": "花蓮縣",
+    "台東縣": "臺東縣",
+    "澎湖縣": "澎湖縣",
+    "金門縣": "金門縣",
+    "連江縣": "連江縣"
+};
+
 // ==================== 1. UUID 管理 ====================
 function getUserId() {
     let id = localStorage.getItem("weatherApp_uid");
@@ -57,22 +83,34 @@ async function saveUserCity(userId, cityName) {
 async function fetchWeatherFromCWB(locationName) {
     try {
         console.log(`🔍 開始查詢: ${locationName}`);
-        const url = `${CWB_API_URL}?locationName=${encodeURIComponent(locationName)}&Authorization=${CWB_API_KEY}`;
+        
+        // 轉換縣市名稱
+        const correctName = cityNameMap[locationName] || locationName;
+        console.log(`📝 轉換為: ${correctName}`);
+        
+        const url = `${CWB_API_URL}?locationName=${encodeURIComponent(correctName)}&Authorization=${CWB_API_KEY}`;
         console.log(`📡 API 網址: ${url}`);
         
         const response = await fetch(url);
+        
+        if (!response.ok) {
+            console.error(`❌ HTTP 錯誤: ${response.status}`);
+            return null;
+        }
+        
         const data = await response.json();
         
         console.log(`📦 API 回應:`, data);
         
-        if (data.success && data.records && data.records.locations.length > 0) {
+        if (data.success && data.records && data.records.locations && data.records.locations.length > 0) {
             const location = data.records.locations[0];
             const weatherData = parseWeatherData(location);
             console.log(`✅ 解析成功:`, weatherData);
             return weatherData;
         }
         
-        console.warn(`⚠️ 找不到位置: ${locationName}`);
+        console.warn(`⚠️ 找不到位置: ${correctName}`);
+        console.warn(`📋 回應數據:`, data);
         return null;
     } catch (error) {
         console.error(`❌ API 查詢失敗:`, error);
